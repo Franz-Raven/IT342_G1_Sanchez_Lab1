@@ -3,7 +3,7 @@ import type { ProfileData, ProfileUpdateRequest, ProfileResponse } from "@/types
 
 export async function getProfile(): Promise<ProfileData> {
   try {
-    const response = await apiRequest<ProfileResponse>("/users/profile");
+    const response = await apiRequest<ProfileResponse>("/profile/me");
     return response;
   } catch (error) {
     throw new Error(
@@ -13,12 +13,24 @@ export async function getProfile(): Promise<ProfileData> {
 }
 
 export async function updateProfile(
-  data: ProfileUpdateRequest
+  data: ProfileUpdateRequest,
+  avatarFile?: File,
+  coverImageFile?: File
 ): Promise<ProfileResponse> {
   try {
-    const response = await apiRequest<ProfileResponse>("/users/profile", {
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
+    if (coverImageFile) {
+      formData.append("coverImage", coverImageFile);
+    }
+
+    const response = await apiRequest<ProfileResponse>("/profile/update", {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: formData,
     });
     return response;
   } catch (error) {
@@ -31,19 +43,16 @@ export async function updateProfile(
 export async function uploadProfileImage(
   file: File,
   type: "avatar" | "coverImage"
-): Promise<{ url: string }> {
+): Promise<ProfileResponse> {
   try {
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("type", type);
+    formData.append(type, file);
 
-    const response = await apiRequest<{ url: string }>(
-      "/users/profile/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const response = await apiRequest<ProfileResponse>("/profile/update", {
+      method: "PUT",
+      body: formData,
+    });
+
     return response;
   } catch (error) {
     throw new Error(
@@ -57,7 +66,6 @@ export async function logout(): Promise<void> {
     await apiRequest<{ message: string }>("/auth/logout", {
       method: "POST",
     });
-    // Clear any local storage or context here if needed
   } catch (error) {
     throw new Error(
       error instanceof Error ? error.message : "Failed to logout"

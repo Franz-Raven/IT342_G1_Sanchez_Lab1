@@ -25,6 +25,16 @@ public class ProfileController {
         this.objectMapper = objectMapper;
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getProfile(@AuthenticationPrincipal String userId) {
+        try {
+            User user = profileService.getUserById(Long.parseLong(userId));
+            return ResponseEntity.ok(convertToResponse(user));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PutMapping("/update")
     public ResponseEntity<?> updateProfile(
             @AuthenticationPrincipal String userId,
