@@ -23,6 +23,11 @@ public class ProfileService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    }
+    
     @Transactional
     public User updateProfile(Long userId, ProfileUpdateRequest request, 
                               MultipartFile avatarFile, MultipartFile coverFile) {

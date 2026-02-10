@@ -9,7 +9,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Vizuo — Share & Build",
+  title: "User Registration and Authentication System",
   description: "Explore community-made assets and bring your ideas to life.",
 };
 
